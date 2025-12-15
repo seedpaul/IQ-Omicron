@@ -1,9 +1,10 @@
 # Cognitive Assessment Suite (Non-Clinical)
 
-Research-informed, **non-clinical** IQ-style assessment for self-tracking. Not WAIS, not Stanford–Binet, no diagnosis or clinical claims.
+Research-informed, **non-clinical** IQ-style assessment for self-tracking. Not WAIS, not Stanford-Binet, no diagnosis or clinical claims.
 
 ## Quick start
-- Open `index.html` locally or host via GitHub Pages (Settings → Pages → Deploy from branch → root).
+- Open `index.html` locally (file://) or host via GitHub Pages (Settings -> Pages -> Deploy from branch -> root).
+- In VS Code, use **Run index.html locally (Chrome)** (launches with `--allow-file-access-from-files`). For `http://localhost:8080`, run `python -m http.server 8080` from the repo root and use **Launch Chrome against localhost**.
 - Check the consent box, optionally set a reproducibility seed, then start (`Full` or `Quick`). Baseline norms are bundled; no server required.
 - Results stay in your browser (`localStorage`), with optional JSON/CSV export.
 
@@ -16,7 +17,7 @@ Research-informed, **non-clinical** IQ-style assessment for self-tracking. Not W
 - Exports: run JSON + item-log CSV; history is local only.
 
 ## Norm packs (optional)
-- Built-in baseline norms: theta→IQ mapping (mean 100 sd 15), optional age bands, index weights, fairness placeholder.
+- Built-in baseline norms: theta-to-IQ mapping (mean 100 sd 15), optional age bands, index weights, fairness placeholder.
 - Load a custom pack via the intro screen. Validator requires a valid `thetaToIQ.thetaMean/thetaSd`; optional `ageBands`, `indices`, and `fairness` are checked with warnings.
 - Schema sketch:
   ```json
