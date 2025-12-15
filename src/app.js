@@ -39,11 +39,15 @@ const els = {
   historyArea: document.getElementById("historyArea"),
   btnDownloadJson: document.getElementById("btnDownloadJson"),
   btnDownloadCsv: document.getElementById("btnDownloadCsv"),
+  btnDownloadLongCsv: document.getElementById("btnDownloadLongCsv"),
+  btnDownloadJsonl: document.getElementById("btnDownloadJsonl"),
+  researchMode: document.getElementById("researchMode"),
   btnRestart: document.getElementById("btnRestart")
 };
 
 const STORAGE_KEY = "iq_omicron_history_v1";
 const CUSTOM_NORM_KEY = "iq_omicron_norm_pack_v1";
+const RESEARCH_KEY = "iq_omicron_research_mode";
 
 const state = {
   runSeed: null,
@@ -54,6 +58,7 @@ const state = {
   nodeEndsAt: null,
   history: loadHistory(),
   normPack: null,
+  researchMode: false,
   lastExports: null
 };
 
@@ -78,6 +83,35 @@ function updateNormStatus(extra = ""){
   const fairness = meta.fairness ? ` | DIF flags: ${meta.fairness.flagged}` : "";
   const note = extra ? ` – ${extra}` : "";
   els.normStatus.textContent = `${meta.name} (v${meta.version})${fairness}${note}`;
+}
+
+function loadResearchMode(){
+  try{
+    const raw = localStorage.getItem(RESEARCH_KEY);
+    state.researchMode = raw === "1";
+  }catch{
+    state.researchMode = false;
+  }
+  if (els.researchMode){
+    els.researchMode.checked = state.researchMode;
+  }
+  applyResearchVisibility();
+}
+
+function setResearchMode(on){
+  state.researchMode = !!on;
+  try{ localStorage.setItem(RESEARCH_KEY, on ? "1" : "0"); }catch{}
+  applyResearchVisibility();
+}
+
+function applyResearchVisibility(){
+  const show = !!state.researchMode;
+  document.querySelectorAll(".research-only").forEach(el => {
+    el.classList.toggle("hidden", !show);
+  });
+  if (els.researchMode){
+    els.researchMode.checked = show;
+  }
 }
 
 function saveHistory(){
@@ -344,7 +378,7 @@ async function startRun(mode){
 
   try{
     const result = await runAssessment(
-      { plan, banks: plan.banks, ageYears: null, normPack: state.normPack },
+      { plan, banks: plan.banks, ageYears: null, normPack: state.normPack, researchMode: state.researchMode },
       { 
         presentItem: presentItemUI,
         onEvent: (type, payload) => {
@@ -457,6 +491,7 @@ function wireEvents(){
   els.btnQuick?.addEventListener("click", () => startRun("quick"));
   els.btnReset?.addEventListener("click", resetHistory);
   els.btnRestart?.addEventListener("click", () => showScreen("intro"));
+  els.researchMode?.addEventListener("change", (e) => setResearchMode(e.target.checked));
 
   els.btnDownloadJson?.addEventListener("click", () => {
     if (!state.lastExports?.runJson) return;
@@ -465,6 +500,14 @@ function wireEvents(){
   els.btnDownloadCsv?.addEventListener("click", () => {
     if (!state.lastExports?.itemLogCsv) return;
     downloadText("iq-item-log.csv", state.lastExports.itemLogCsv, "text/csv");
+  });
+  els.btnDownloadLongCsv?.addEventListener("click", () => {
+    if (!state.lastExports?.longCsv) return;
+    downloadText("iq-long.csv", state.lastExports.longCsv, "text/csv");
+  });
+  els.btnDownloadJsonl?.addEventListener("click", () => {
+    if (!state.lastExports?.eventsJsonl) return;
+    downloadText("iq-events.jsonl", state.lastExports.eventsJsonl, "application/json");
   });
 
   // Norm pack UI placeholders (pipeline integration will load packs later)
@@ -479,6 +522,7 @@ function init(){
   if (els.btnPause) els.btnPause.style.display = "none";
   wireEvents();
   loadNormPack();
+  loadResearchMode();
 }
 
 init();

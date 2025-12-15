@@ -72,12 +72,23 @@
           The app is self-contained and works out of the box using a bundled baseline norm model.
           You can optionally load a custom <em>norm pack</em> (JSON) built from your own sample using the included pipeline.
         </p>
-        <div class="row">
-          <input id="normFile" class="file" type="file" accept="application/json" />
-          <button id="btnLoadNorm" class="btn">Load norm pack</button>
-          <button id="btnClearNorm" class="btn">Clear custom norm pack</button>
-        </div>
-        <div id="normStatus" class="muted"></div>
+      <div class="row">
+        <input id="normFile" class="file" type="file" accept="application/json" />
+        <button id="btnLoadNorm" class="btn">Load norm pack</button>
+        <button id="btnClearNorm" class="btn">Clear custom norm pack</button>
+      </div>
+      <div id="normStatus" class="muted"></div>
+    </details>
+
+      <details class="details">
+        <summary><strong>Research Mode (optional)</strong></summary>
+        <p class="muted">
+          Enables advanced exports for research and calibration. No data leaves your browser unless you download it.
+        </p>
+        <label class="chk">
+          <input id="researchMode" type="checkbox" />
+          Enable Research Mode (shows research exports)
+        </label>
       </details>
 
       <details class="details">
@@ -125,6 +136,8 @@
       <div class="row">
         <button id="btnDownloadJson" class="btn primary">Download run (JSON)</button>
         <button id="btnDownloadCsv" class="btn">Download item log (CSV)</button>
+        <button id="btnDownloadLongCsv" class="btn research-only hidden">Download long CSV (research)</button>
+        <button id="btnDownloadJsonl" class="btn research-only hidden">Download JSONL events (research)</button>
         <button id="btnRestart" class="btn">Take again</button>
       </div>
 

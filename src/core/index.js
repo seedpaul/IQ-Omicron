@@ -101,6 +101,7 @@ export async function runAssessment(config, io = {}){
 
   const presenter = io.presentItem || (async () => ({ x: null, rtMs: null, meta: {} }));
   const onEvent = io.onEvent || noop;
+  const runId = config.runId || `run-${Date.now()}`;
 
   // Build and summarize bank
   const sourceBanks = banks || config.banks || collectBanksFromPlan(plan);
@@ -149,6 +150,8 @@ export async function runAssessment(config, io = {}){
         const est = cat.recordResponse({ item, x, rtMs, meta });
 
         responses.push({
+          runId,
+          planId: plan.id,
           ...nodeCtx,
           itemId: item.id,
           x,
@@ -184,6 +187,8 @@ export async function runAssessment(config, io = {}){
       seqResponses.push({ item, x, rtMs, meta });
 
       responses.push({
+        runId,
+        planId: plan.id,
         ...nodeCtx,
         itemId: item.id,
         x,
@@ -191,6 +196,7 @@ export async function runAssessment(config, io = {}){
         thetaAfter: null,
         semAfter: null,
         family: item.family,
+        model: item.model,
         a: item.a,
         b: item.b,
         c: item.c ?? 0
@@ -227,17 +233,38 @@ export async function runAssessment(config, io = {}){
   const report = buildReport({ ageYears, subtestSummaries: compositeSummaries, integrity: {}, normPack: config.normPack || null });
 
   // Build exports
-  const runJson = JSON.stringify({ planId: plan.id, ageYears, report, responses }, null, 2);
+  const runJson = JSON.stringify({ runId, planId: plan.id, ageYears, report, responses }, null, 2);
   const itemLogCsv = toCsv(responses);
-  const longCsv = itemLogCsv; // placeholder; UI can request richer export via research tools
+  const longRows = responses.map(r => ({
+    runId: r.runId,
+    planId: r.planId,
+    nodeId: r.nodeId,
+    domain: r.domain,
+    itemId: r.itemId,
+    family: r.family,
+    anchor: r.anchor ?? null,
+    model: r.model ?? null,
+    a: r.a,
+    b: r.b,
+    c: r.c ?? 0,
+    x: r.x,
+    rtMs: r.rtMs,
+    thetaAfter: r.thetaAfter,
+    semAfter: r.semAfter
+  }));
+  const longCsv = toCsv(longRows);
+  const eventsJsonl = researchMode ? responses.map(r => JSON.stringify(r)).join("\n") : null;
 
   return {
     report,
     session: {
+      runId,
       planId: plan.id,
       ageYears,
       responses
     },
-    exports: { runJson, itemLogCsv, longCsv }
+    exports: researchMode
+      ? { runJson, itemLogCsv, longCsv, eventsJsonl }
+      : { runJson, itemLogCsv, longCsv }
   };
 }
