@@ -1,150 +1,50 @@
-# IQ‑Omicron  
-**Non‑clinical, browser‑native adaptive cognitive assessment engine**
+# iq.omicron.one (non-clinical, client-side)
 
----
+**What this is**  
+Non-clinical, browser-only adaptive cognitive assessment. Uses original item generators, IRT (2PL/3PL), CAT routing, SEM-based stopping, and optional research exports. No servers, no tracking; everything runs locally. **Not WAIS / Stanford–Binet. Not clinical or diagnostic.**
 
-## 🧠 What Is IQ‑Omicron?
+**What ships here**
+- Static web app: `index.html`, `styles.css`, `src/app.js`, `src/plan.js`
+- Item generators from the Delta banks: `src/items/*` (original content)
+- Unified psychometric core from Gamma: `src/core/*` (IRT/CAT/scoring, renderers, research tools)
+- Norm support: built-in baseline norms + optional custom norm packs (`src/core/norms.js`)
+- Research Mode: long CSV and JSONL exports (client-side downloads only)
+- Python pipeline (unchanged from Delta): calibration, DIF, norm-pack builder (`pipeline/`)
 
-IQ‑Omicron is a **client‑side, JavaScript‑powered adaptive assessment framework** that runs entirely in the browser — no server required. It blends modern psychometric concepts such as **Item Response Theory (IRT)** and **Computerized Adaptive Testing (CAT)** with static web deliverability, enabling:
+**How to run**
+1) Open `index.html` locally or via any static host (GitHub Pages friendly).  
+2) Accept the non-clinical notice; choose Standard or Quick; optional seed for reproducibility.  
+3) Results show IQ-style estimate + 95% CI + percentile; downloads are local JSON/CSV (plus research exports when enabled).  
+4) History and custom norms live in `localStorage`; use “Reset”/“Clear norm pack” in the UI to remove them.
 
-- Static deployment (e.g., GitHub Pages)  
-- Browser‑only computation and data storage  
-- Exportable results and research logs  
-- Modular item banks and assessment plans  
+**Norm packs**
+- Baseline norms are always available.  
+- Build a custom pack with `pipeline/make_norm_pack.py --input <runs.jsonl> --out norm_pack.json`; load it via the Norm packs section. Invalid packs fall back to baseline with a message. No upload occurs; files stay local.
 
-⚠️ **Important:** This project is **NOT a clinical or diagnostic instrument**. Scores are not valid for clinical interpretation, professional diagnosis, or high‑stakes decision making.
+**Research Mode**
+- Toggle in the Intro screen. Unlocks long CSV + JSONL event exports. Data is never sent anywhere automatically; downloads are user-initiated only.  
+- Fairness/DIF scripts live in `pipeline/` and `src/core/research/*` for offline analysis.
 
----
+**Safety & ethics**
+- Original items only; avoid any proprietary/clinical content.  
+- Non-clinical use; no diagnostic claims.  
+- Client-side privacy by default; no analytics or network calls.
 
-## 🚀 Highlights
-
-- Adaptive scoring using IRT (2PL/3PL support)
-- Quick and Standard assessment plans
-- Fully static HTML/CSS/JS architecture
-- Client‑side research data exports
-- Local norm packs with custom overrides
-- Offline storage via browser APIs
-- Python tooling for calibration, norming, and DIF analysis
-
----
-
-## 📁 Repository Structure
-
+**Repo map**
 ```
-IQ‑Omicron/
-├── index.html
-├── styles.css
-├── src/
-│   ├── app.js
-│   ├── plan.js
-│   ├── items/
-│   ├── core/
-│   │   ├── index.js
-│   │   ├── data/
-│   │   ├── engine/
-│   │   ├── render/
-│   │   └── research/
-│   └── engine/   # legacy
-└── pipeline/
-    ├── calibrate_2pl.py
-    ├── dif_logistic.py
-    ├── dif_mh.py
-    ├── make_norm_pack.py
-    └── README.md
+index.html, styles.css          # UI shell
+src/
+  app.js                        # UI controller (single execution path)
+  plan.js                       # Standard/Quick plans and bank assembly
+  items/                        # Delta item generators (content source)
+  core/                         # Gamma psychometric core + renderers + research
+    index.js                    # runAssessment(config, io)
+    norms.js                    # baseline/custom norm handling
+pipeline/                       # Python calibration/norm/DIF tools (unchanged)
 ```
 
----
-
-## 🧪 Running Locally
-
-This project requires no build step.
-
-### Option 1 — Direct
-
-Open `index.html` in a modern browser.
-
-### Option 2 — Local Server (recommended)
-
-```bash
-npx serve .
-# or
-python -m http.server
-```
-
----
-
-## 📊 Assessment Modes
-
-### Standard Mode
-Full adaptive test across cognitive domains.
-
-### Quick Mode
-Short‑form adaptive estimate.
-
-Both produce:
-- IQ‑style scaled scores
-- Percentile ranks
-- Confidence intervals
-
----
-
-## ➕ Item Banks
-
-Item banks live in `src/items/`.  
-To add new items:
-
-1. Define domain items
-2. Register them in `plan.js`
-3. Reload — no rebuild required
-
----
-
-## 📈 Norms & Research Pipeline
-
-Python tools in `/pipeline` support:
-
-- Item calibration (2PL)
-- Norm pack generation
-- DIF detection (MH, logistic)
-
-Generated norm packs can be loaded directly into the UI.
-
----
-
-## 🔒 Privacy & Ethics
-
-All data remains **local to the browser**.
-
-- No telemetry
-- No server calls
-- No analytics
-
-Use responsibly and avoid clinical claims.
-
----
-
-## 🧠 Psychometric Foundations
-
-- Item Response Theory
-- Computerized Adaptive Testing
-- SEM‑based stopping rules
-- Exposure control
-- Percentile scaling
-
----
-
-## 🛣 Roadmap
-
-- Multi‑form equating
-- Expanded norming
-- Bayesian priors
-- Longitudinal measurement
-- Secure administration hooks
-
----
-
-## ⚖️ License & Attribution
-
-Authored by **Paul Seed**.
-
-Provided for research and educational use only.
+**Quick checks after changes**
+- Open `index.html`, run Quick mode, confirm no console errors.  
+- Verify downloads (JSON, CSV; long CSV/JSONL in Research Mode).  
+- Load/clear a norm pack; ensure status updates and baseline fallback works.  
+- Keep branding as `iq.omicron.one` in titles/README/UI chips.
