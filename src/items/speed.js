@@ -45,7 +45,7 @@ export function buildSpeedSymbolSearchPages({ pages=4, seed }={}){
 }
 
 export function buildSpeedCodingPages({ pages=4, seed }={}){
-  const rng = mulberry32(sanitizeSeed(seed ?? 0xC0D1NG));
+  const rng = mulberry32(sanitizeSeed(seed ?? 0xC0D1E));
   const out = [];
 
   for (let p=0;p<pages;p++){
