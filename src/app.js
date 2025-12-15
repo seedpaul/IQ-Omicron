@@ -1,6 +1,14 @@
 import { buildPlan } from "./plan.js";
 import { runAssessment } from "./core/index.js";
 import { renderItem } from "./core/render/itemRenderer.js";
+import {
+  getBaselineNormPack,
+  loadSavedNormPack,
+  saveNormPack,
+  clearSavedNormPack,
+  describePack,
+  validateNormPack
+} from "./core/norms.js";
 
 const els = {
   intro: document.getElementById("screen-intro"),
@@ -35,6 +43,7 @@ const els = {
 };
 
 const STORAGE_KEY = "iq_omicron_history_v1";
+const CUSTOM_NORM_KEY = "iq_omicron_norm_pack_v1";
 
 const state = {
   runSeed: null,
@@ -44,6 +53,7 @@ const state = {
   timerHandle: null,
   nodeEndsAt: null,
   history: loadHistory(),
+  normPack: null,
   lastExports: null
 };
 
@@ -54,6 +64,20 @@ function loadHistory(){
   }catch{
     return [];
   }
+}
+
+function loadNormPack(){
+  const saved = loadSavedNormPack(CUSTOM_NORM_KEY);
+  state.normPack = saved || getBaselineNormPack();
+  updateNormStatus(saved ? "Custom norm pack loaded." : "Using baseline norms.");
+}
+
+function updateNormStatus(extra = ""){
+  if (!els.normStatus) return;
+  const meta = describePack(state.normPack || getBaselineNormPack());
+  const fairness = meta.fairness ? ` | DIF flags: ${meta.fairness.flagged}` : "";
+  const note = extra ? ` – ${extra}` : "";
+  els.normStatus.textContent = `${meta.name} (v${meta.version})${fairness}${note}`;
 }
 
 function saveHistory(){
@@ -320,7 +344,7 @@ async function startRun(mode){
 
   try{
     const result = await runAssessment(
-      { plan, banks: plan.banks, ageYears: null },
+      { plan, banks: plan.banks, ageYears: null, normPack: state.normPack },
       { 
         presentItem: presentItemUI,
         onEvent: (type, payload) => {
@@ -396,6 +420,35 @@ function resetHistory(){
   renderHistory();
 }
 
+async function loadNormFromFile(){
+  const file = els.normFile?.files?.[0];
+  if (!file){
+    updateNormStatus("Select a JSON file first.");
+    return;
+  }
+  try{
+    const text = await file.text();
+    const obj = JSON.parse(text);
+    const v = validateNormPack(obj);
+    if (!v.valid){
+      updateNormStatus(`Invalid norm pack: ${v.errors.join("; ")}`);
+      return;
+    }
+    const { norm, warnings } = saveNormPack(obj, CUSTOM_NORM_KEY);
+    state.normPack = norm;
+    const note = warnings?.length ? warnings.join("; ") : "Custom norm pack loaded.";
+    updateNormStatus(note);
+  }catch(err){
+    updateNormStatus(`Failed to load norm pack: ${err.message}`);
+  }
+}
+
+function clearNorm(){
+  clearSavedNormPack(CUSTOM_NORM_KEY);
+  state.normPack = getBaselineNormPack();
+  updateNormStatus("Reverted to baseline norms.");
+}
+
 function wireEvents(){
   els.agree?.addEventListener("change", () => {
     els.btnStart.disabled = !els.agree.checked;
@@ -415,12 +468,8 @@ function wireEvents(){
   });
 
   // Norm pack UI placeholders (pipeline integration will load packs later)
-  els.btnLoadNorm?.addEventListener("click", () => {
-    els.normStatus.textContent = "Custom norm loading not yet wired.";
-  });
-  els.btnClearNorm?.addEventListener("click", () => {
-    els.normStatus.textContent = "Custom norm cleared.";
-  });
+  els.btnLoadNorm?.addEventListener("click", loadNormFromFile);
+  els.btnClearNorm?.addEventListener("click", clearNorm);
 }
 
 function init(){
@@ -429,6 +478,7 @@ function init(){
   if (els.btnBack) els.btnBack.style.display = "none";
   if (els.btnPause) els.btnPause.style.display = "none";
   wireEvents();
+  loadNormPack();
 }
 
 init();

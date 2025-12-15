@@ -224,7 +224,7 @@ export async function runAssessment(config, io = {}){
 
   // Filter to composite domains (skip attention/other if flagged)
   const compositeSummaries = subtestSummaries.filter(s => s && s.domain && s.domain !== "attention");
-  const report = buildReport({ ageYears, subtestSummaries: compositeSummaries, integrity: {} });
+  const report = buildReport({ ageYears, subtestSummaries: compositeSummaries, integrity: {}, normPack: config.normPack || null });
 
   // Build exports
   const runJson = JSON.stringify({ planId: plan.id, ageYears, report, responses }, null, 2);

@@ -1,5 +1,6 @@
-import { ageAdjustTheta, thetaToIndex, thetaToPercentile, ci95 } from "./norms.js";
-import { clamp } from "./utils.js";
+import { ageAdjustTheta } from "./norms.js";
+import { clamp, normalCdf } from "./utils.js";
+import { ci95 } from "./norms.js";
 
 /**
  * g aggregation:
@@ -29,7 +30,22 @@ export function computeG(domainThetas){
   return num / den;
 }
 
-export function buildReport({ ageYears, subtestSummaries, integrity }){
+function mapThetaToScores(theta, sem, normPack){
+  const t = normPack?.thetaToIQ || {};
+  const thetaMean = isFinite(t.thetaMean) ? Number(t.thetaMean) : 0;
+  const thetaSd = (isFinite(t.thetaSd) && t.thetaSd > 0) ? Number(t.thetaSd) : 1;
+  const mean = isFinite(t.mean) ? Number(t.mean) : 100;
+  const sd = (isFinite(t.sd) && t.sd > 0) ? Number(t.sd) : 15;
+
+  const z = (theta - thetaMean) / thetaSd;
+  const index = mean + sd * z;
+  const semIndex = sd * (sem / thetaSd);
+  const ci = ci95(index, semIndex);
+  const pct = normalCdf(z) * 100;
+  return { index, pct, ci };
+}
+
+export function buildReport({ ageYears, subtestSummaries, integrity, normPack=null }){
   // Age-adjusted thetas
   const domain = {};
   const domainSem = {};
@@ -49,14 +65,14 @@ export function buildReport({ ageYears, subtestSummaries, integrity }){
   for (const d of Object.keys(domain)){
     const t = domain[d];
     const sem = domainSem[d];
-    indices[d] = thetaToIndex(t);
-    percentiles[d] = thetaToPercentile(t);
-    ci[d] = ci95(thetaToIndex(t), 15 * sem); // approximate scaling of SEM
+    const s = mapThetaToScores(t, sem, normPack);
+    indices[d] = s.index;
+    percentiles[d] = s.pct;
+    ci[d] = s.ci;
   }
 
-  const fsiq = thetaToIndex(gTheta);
   const fsiqSem = Math.sqrt(Object.values(domainSem).reduce((s,x)=>s+x*x,0) / Math.max(1,Object.values(domainSem).length)) * 0.75;
-  const fsiqCi = ci95(fsiq, 15 * fsiqSem);
+  const fsiqScores = mapThetaToScores(gTheta, fsiqSem, normPack);
 
   return {
     meta: {
@@ -65,9 +81,9 @@ export function buildReport({ ageYears, subtestSummaries, integrity }){
       ageYears: Number(ageYears) || null
     },
     results: {
-      fsiq: round1(fsiq),
-      fsiqPercentile: round1(thetaToPercentile(gTheta)),
-      fsiqCI95: { lo: round1(fsiqCi.lo), hi: round1(fsiqCi.hi) },
+      fsiq: round1(fsiqScores.index),
+      fsiqPercentile: round1(fsiqScores.pct),
+      fsiqCI95: { lo: round1(fsiqScores.ci.lo), hi: round1(fsiqScores.ci.hi) },
       domainIndices: mapRound1(indices),
       domainPercentiles: mapRound1(percentiles),
       domainCI95: mapRound1Ci(ci)
