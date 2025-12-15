@@ -142,7 +142,7 @@ export function buildItemBank({ banks, includeDomains }){
   validateBank(items);
 
   return {
-    version: "omicron-adapted",
+    version: "indexia-adapted",
     generatedAt: new Date().toISOString(),
     domains: Array.from(domainsSeen),
     items

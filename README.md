@@ -1,4 +1,4 @@
-# iq.omicron.one (non-clinical, client-side)
+# iq.indexia.one (non-clinical, client-side)
 
 **What this is**  
 Non-clinical, browser-only adaptive cognitive assessment. Uses original item generators, IRT (2PL/3PL), CAT routing, SEM-based stopping, and optional research exports. No servers, no tracking; everything runs locally. **Not WAIS / Stanford–Binet. Not clinical or diagnostic.**
@@ -47,4 +47,4 @@ pipeline/                       # Python calibration/norm/DIF tools (unchanged)
 - Open `index.html`, run Quick mode, confirm no console errors.  
 - Verify downloads (JSON, CSV; long CSV/JSONL in Research Mode).  
 - Load/clear a norm pack; ensure status updates and baseline fallback works.  
-- Keep branding as `iq.omicron.one` in titles/README/UI chips.
+- Keep branding as `iq.indexia.one` in titles/README/UI chips.

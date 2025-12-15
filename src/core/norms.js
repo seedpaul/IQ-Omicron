@@ -1,4 +1,4 @@
-const STORAGE_KEY = "iq_omicron_norm_pack_v1";
+const STORAGE_KEY = "iq_indexia_norm_pack_v1";
 
 const BASELINE_PACK = {
   name: "Baseline (generic, self-contained)",

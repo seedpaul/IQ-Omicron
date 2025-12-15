@@ -45,9 +45,9 @@ const els = {
   btnRestart: document.getElementById("btnRestart")
 };
 
-const STORAGE_KEY = "iq_omicron_history_v1";
-const CUSTOM_NORM_KEY = "iq_omicron_norm_pack_v1";
-const RESEARCH_KEY = "iq_omicron_research_mode";
+const STORAGE_KEY = "iq_indexia_history_v1";
+const CUSTOM_NORM_KEY = "iq_indexia_norm_pack_v1";
+const RESEARCH_KEY = "iq_indexia_research_mode";
 
 const state = {
   runSeed: null,
