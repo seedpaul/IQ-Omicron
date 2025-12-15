@@ -45,9 +45,9 @@ const els = {
   btnRestart: document.getElementById("btnRestart")
 };
 
-const STORAGE_KEY = "iq_indexia_history_v1";
-const CUSTOM_NORM_KEY = "iq_indexia_norm_pack_v1";
-const RESEARCH_KEY = "iq_indexia_research_mode";
+const STORAGE_KEY = "iq_metronics_history_v1";
+const CUSTOM_NORM_KEY = "iq_metronics_norm_pack_v1";
+const RESEARCH_KEY = "iq_metronics_research_mode";
 
 const state = {
   runSeed: null,

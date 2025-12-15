@@ -92,7 +92,7 @@ export async function runAssessment(config, io = {}){
     banks,
     ageYears = null,
     researchMode = false,
-    exposureStore = new ExposureStore("iq_indexia_exposure_v1")
+    exposureStore = new ExposureStore("iq_metronics_exposure_v1")
   } = config || {};
 
   if (!plan?.nodes?.length){
