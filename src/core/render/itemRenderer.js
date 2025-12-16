@@ -8,6 +8,7 @@ export function renderItem({ mount, item, onSelectionChanged }){
   let selectedIndex = null;
   let blockResult = null;
   let cleanupFn = null;
+  const optionList = Array.isArray(item.options) ? item.options : [];
 
   const prompt = document.createElement("div");
   prompt.className = "itemPrompt";
@@ -131,30 +132,45 @@ export function renderItem({ mount, item, onSelectionChanged }){
     const opts = document.createElement("div");
     opts.className = "options";
 
-    item.options.forEach((opt, idx) => {
-      const el = document.createElement("div");
-      el.className = "option";
-      el.dataset.index = String(idx);
+    if (!optionList.length){
+      opts.innerHTML = "<div class=\"muted small\">No options available.</div>";
+    }else{
+      optionList.forEach((opt, idx) => {
+        const el = document.createElement("div");
+        el.className = "option";
+        el.dataset.index = String(idx);
+        el.tabIndex = 0;
+        el.setAttribute("role", "button");
+        el.setAttribute("aria-label", `Option ${idx + 1}`);
 
-      if (typeof opt === "object"){
-        if (opt.svg){
-          el.innerHTML = opt.svg;
+        if (typeof opt === "object"){
+          if (opt.svg){
+            el.innerHTML = opt.svg;
+          }else{
+            el.innerHTML = symbolToSvg(opt, 92);
+          }
         }else{
-          el.innerHTML = symbolToSvg(opt, 92);
+          el.textContent = String(opt);
         }
-      }else{
-        el.textContent = String(opt);
-      }
 
-      el.addEventListener("click", () => {
-        selectedIndex = idx;
-        [...opts.querySelectorAll(".option")].forEach(x => x.classList.remove("selected"));
-        el.classList.add("selected");
-        onSelectionChanged?.(true);
+        const select = () => {
+          selectedIndex = idx;
+          [...opts.querySelectorAll(".option")].forEach(x => x.classList.remove("selected"));
+          el.classList.add("selected");
+          onSelectionChanged?.(true);
+        };
+
+        el.addEventListener("click", select);
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            select();
+          }
+        });
+
+        opts.appendChild(el);
       });
-
-      opts.appendChild(el);
-    });
+    }
 
     mount.appendChild(opts);
   }

@@ -113,7 +113,8 @@ function normalizeItem(item){
     b,
     c,
     stem: baseStem(item),
-    options: item.choices || item.options || null,
+    // Prefer richer option objects (with svg) when present; fall back to label-only choices.
+    options: (Array.isArray(item.options) && item.options.length) ? item.options : (item.choices || null),
     key,
     blueprint: item.blueprint || null,
     raw: item, // keep original for UI rendering and exports

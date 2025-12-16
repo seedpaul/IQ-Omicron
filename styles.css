@@ -186,23 +186,40 @@ li{margin:6px 0;}
   background:rgba(0,0,0,0.22);
 }
 
-.answers{
+.options{
   display:grid;
-  gap:10px;
+  grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+  gap:12px;
   margin-top:12px;
+  list-style:none;
+  padding:0;
 }
-.choice{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:10px 12px;
-  border-radius:12px;
+.option{
   border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
   background:rgba(255,255,255,0.02);
   cursor:pointer;
+  text-align:center;
+  transition:border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease, background 120ms ease;
+  user-select:none;
 }
-.choice:hover{background:rgba(255,255,255,0.04);}
-.choice input{margin-top:3px;}
+.option:hover{
+  border-color:var(--blue);
+  background:rgba(255,255,255,0.04);
+  transform:translateY(-1px);
+}
+.option.selected{
+  border-color:var(--blue);
+  box-shadow:0 0 0 2px rgba(43,92,255,0.25);
+  background:rgba(43,92,255,0.06);
+}
+.option svg{
+  display:block;
+  margin:0 auto;
+  pointer-events:none;
+}
+.option *{ pointer-events:none; }
 
 .textInput{
   width:100%;

@@ -238,15 +238,25 @@ function renderOptions(item, onSelect){
     const btn = document.createElement("div");
     btn.className = "option";
     btn.dataset.index = String(idx);
+    btn.tabIndex = 0;
+    btn.setAttribute("role", "button");
+    btn.setAttribute("aria-label", `Option ${idx + 1}`);
     if (typeof opt === "object" && opt.svg){
       btn.innerHTML = opt.svg;
     }else{
       btn.textContent = String(opt);
     }
-    btn.addEventListener("click", () => {
+    const select = () => {
       [...opts.children].forEach(c => c.classList.remove("selected"));
       btn.classList.add("selected");
       onSelect(idx);
+    };
+    btn.addEventListener("click", select);
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        select();
+      }
     });
     opts.appendChild(btn);
   });
@@ -311,7 +321,10 @@ function presentItemUI(ctx){
     let renderer = null;
     let fallbackResponse = null;
 
-    const useRenderer = item?.stem?.type;
+    const stemType = item?.stem?.type || "";
+    const isBlockStem = ["n_back_block","symbol_search_block","coding_block"].includes(stemType);
+    const hasRendererOptions = Array.isArray(item?.options) && item.options.length > 0;
+    const useRenderer = stemType && (isBlockStem || hasRendererOptions);
 
     if (useRenderer){
       els.answerArea.innerHTML = "";
